@@ -36,15 +36,47 @@ const LoginForm = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = async (e) => {
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!validate()) return;
+  //   try {
+  //     setIsLoading(true);
+  //     await login(formData.email, formData.password);
+  //     navigate('/');
+  //   } catch (err) {
+  //     setErrors(prev => ({ ...prev, general: err?.message || 'Login failed' }));
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+    const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      setIsLoading(true);
-      await login(formData.email, formData.password);
-      navigate('/');
-    } catch (err) {
-      setErrors(prev => ({ ...prev, general: err?.message || 'Login failed' }));
+      // Use AuthContext login method
+      const result = await login(formData.email, formData.password);
+
+      if (result.success) {
+        // Redirect to role-based dashboard on successful login
+        navigate('/role-based-dashboard');
+      } else {
+        setErrors({
+          general:
+            result.error ||
+            'Invalid email or password. Please check your credentials and try again.',
+        });
+      }
+    } catch (error) {
+      setErrors({
+        general: 'An error occurred during login. Please try again.',
+      });
     } finally {
       setIsLoading(false);
     }
